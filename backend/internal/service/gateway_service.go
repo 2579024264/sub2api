@@ -6036,9 +6036,9 @@ func (s *GatewayService) executeBedrockUpstream(
 	for attempt := 1; attempt <= maxRetryAttempts; attempt++ {
 		var upstreamReq *http.Request
 		if account.IsBedrockAPIKey() {
-			upstreamReq, err = s.buildUpstreamRequestBedrockAPIKey(ctx, body, modelID, region, stream, apiKey)
+			upstreamReq, err = s.buildUpstreamRequestBedrockAPIKey(ctx, account, body, modelID, region, stream, apiKey)
 		} else {
-			upstreamReq, err = s.buildUpstreamRequestBedrock(ctx, body, modelID, region, stream, signer)
+			upstreamReq, err = s.buildUpstreamRequestBedrock(ctx, account, body, modelID, region, stream, signer)
 		}
 		if err != nil {
 			return nil, err
@@ -6185,6 +6185,7 @@ func (s *GatewayService) handleBedrockUpstreamErrors(
 // buildUpstreamRequestBedrock 构建 Bedrock 上游请求
 func (s *GatewayService) buildUpstreamRequestBedrock(
 	ctx context.Context,
+	account *Account,
 	body []byte,
 	modelID string,
 	region string,
@@ -6213,6 +6214,7 @@ func (s *GatewayService) buildUpstreamRequestBedrock(
 // buildUpstreamRequestBedrockAPIKey 构建 Bedrock API Key (Bearer Token) 上游请求
 func (s *GatewayService) buildUpstreamRequestBedrockAPIKey(
 	ctx context.Context,
+	account *Account,
 	body []byte,
 	modelID string,
 	region string,
