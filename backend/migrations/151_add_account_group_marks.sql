@@ -1,0 +1,4 @@
+ALTER TABLE accounts
+    ADD COLUMN IF NOT EXISTS vendor_mark VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS ip_group_mark VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS fingerprint_group_mark VARCHAR(100);

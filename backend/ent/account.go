@@ -29,6 +29,12 @@ type Account struct {
 	Name string `json:"name,omitempty"`
 	// Notes holds the value of the "notes" field.
 	Notes *string `json:"notes,omitempty"`
+	// VendorMark holds the value of the "vendor_mark" field.
+	VendorMark *string `json:"vendor_mark,omitempty"`
+	// IPGroupMark holds the value of the "ip_group_mark" field.
+	IPGroupMark *string `json:"ip_group_mark,omitempty"`
+	// FingerprintGroupMark holds the value of the "fingerprint_group_mark" field.
+	FingerprintGroupMark *string `json:"fingerprint_group_mark,omitempty"`
 	// Platform holds the value of the "platform" field.
 	Platform string `json:"platform,omitempty"`
 	// Type holds the value of the "type" field.
@@ -149,7 +155,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case account.FieldID, account.FieldProxyID, account.FieldProxyFallbackOriginID, account.FieldConcurrency, account.FieldLoadFactor, account.FieldPriority:
 			values[i] = new(sql.NullInt64)
-		case account.FieldName, account.FieldNotes, account.FieldPlatform, account.FieldType, account.FieldStatus, account.FieldErrorMessage, account.FieldTempUnschedulableReason, account.FieldSessionWindowStatus:
+		case account.FieldName, account.FieldNotes, account.FieldVendorMark, account.FieldIPGroupMark, account.FieldFingerprintGroupMark, account.FieldPlatform, account.FieldType, account.FieldStatus, account.FieldErrorMessage, account.FieldTempUnschedulableReason, account.FieldSessionWindowStatus:
 			values[i] = new(sql.NullString)
 		case account.FieldCreatedAt, account.FieldUpdatedAt, account.FieldDeletedAt, account.FieldLastUsedAt, account.FieldExpiresAt, account.FieldRateLimitedAt, account.FieldRateLimitResetAt, account.FieldOverloadUntil, account.FieldTempUnschedulableUntil, account.FieldSessionWindowStart, account.FieldSessionWindowEnd:
 			values[i] = new(sql.NullTime)
@@ -205,6 +211,27 @@ func (_m *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Notes = new(string)
 				*_m.Notes = value.String
+			}
+		case account.FieldVendorMark:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field vendor_mark", values[i])
+			} else if value.Valid {
+				_m.VendorMark = new(string)
+				*_m.VendorMark = value.String
+			}
+		case account.FieldIPGroupMark:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ip_group_mark", values[i])
+			} else if value.Valid {
+				_m.IPGroupMark = new(string)
+				*_m.IPGroupMark = value.String
+			}
+		case account.FieldFingerprintGroupMark:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field fingerprint_group_mark", values[i])
+			} else if value.Valid {
+				_m.FingerprintGroupMark = new(string)
+				*_m.FingerprintGroupMark = value.String
 			}
 		case account.FieldPlatform:
 			if value, ok := values[i].(*sql.NullString); !ok {

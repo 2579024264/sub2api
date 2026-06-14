@@ -78,9 +78,7 @@ func (s *OpenAIGatewayService) ForwardEmbeddings(
 			}
 		}
 	}
-	if customUA := account.GetOpenAIUserAgent(); customUA != "" {
-		upstreamReq.Header.Set("user-agent", customUA)
-	}
+	ApplyAccountRequestHeaders(upstreamReq, account)
 
 	proxyURL := ""
 	if account.Proxy != nil {

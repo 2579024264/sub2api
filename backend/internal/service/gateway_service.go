@@ -5485,6 +5485,7 @@ func (s *GatewayService) buildUpstreamRequestAnthropicAPIKeyPassthrough(
 	if getHeaderRaw(req.Header, "anthropic-version") == "" {
 		setHeaderRaw(req.Header, "anthropic-version", "2023-06-01")
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	return req, body, nil
 }
@@ -6199,6 +6200,7 @@ func (s *GatewayService) buildUpstreamRequestBedrock(
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
+	ApplyAccountRequestHeaders(req, account)
 
 	// SigV4 签名
 	if err := signer.SignRequest(ctx, req, body); err != nil {
@@ -6227,6 +6229,7 @@ func (s *GatewayService) buildUpstreamRequestBedrockAPIKey(
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
+	ApplyAccountRequestHeaders(req, account)
 
 	return req, nil
 }
@@ -6405,6 +6408,7 @@ func (s *GatewayService) buildUpstreamRequest(ctx context.Context, c *gin.Contex
 	if tokenType == "oauth" && mimicClaudeCode {
 		applyClaudeCodeMimicHeaders(req, reqStream)
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	// 写入最终 anthropic-beta header
 	// 注：透传分支白名单可能写入了客户端 anthropic-beta，无条件 Del 一次再按 finalBeta
@@ -6497,6 +6501,7 @@ func (s *GatewayService) buildUpstreamRequestAnthropicVertex(
 	req.Header.Del("anthropic-version")
 	setHeaderRaw(req.Header, "authorization", "Bearer "+token)
 	setHeaderRaw(req.Header, "content-type", "application/json")
+	ApplyAccountRequestHeaders(req, account)
 
 	s.debugLogGatewaySnapshot("UPSTREAM_FORWARD_VERTEX_ANTHROPIC", req.Header, vertexBody, map[string]string{
 		"url":        req.URL.String(),
@@ -9750,6 +9755,7 @@ func (s *GatewayService) buildCountTokensRequestAnthropicAPIKeyPassthrough(
 	if req.Header.Get("anthropic-version") == "" {
 		req.Header.Set("anthropic-version", "2023-06-01")
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	return req, nil
 }
@@ -9871,6 +9877,7 @@ func (s *GatewayService) buildCountTokensRequest(ctx context.Context, c *gin.Con
 	if tokenType == "oauth" && mimicClaudeCode {
 		applyClaudeCodeMimicHeaders(req, false)
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	// 写入最终 anthropic-beta header（Del 一次避免白名单透传值残留）
 	deleteHeaderAllForms(req.Header, "anthropic-beta")

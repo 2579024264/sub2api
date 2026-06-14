@@ -86,32 +86,38 @@ type AccountRepository interface {
 // AccountBulkUpdate describes the fields that can be updated in a bulk operation.
 // Nil pointers mean "do not change".
 type AccountBulkUpdate struct {
-	Name           *string
-	ProxyID        *int64
-	Concurrency    *int
-	Priority       *int
-	RateMultiplier *float64
-	LoadFactor     *int
-	Status         *string
-	Schedulable    *bool
-	Credentials    map[string]any
-	Extra          map[string]any
+	Name                 *string
+	VendorMark           *string
+	IPGroupMark          *string
+	FingerprintGroupMark *string
+	ProxyID              *int64
+	Concurrency          *int
+	Priority             *int
+	RateMultiplier       *float64
+	LoadFactor           *int
+	Status               *string
+	Schedulable          *bool
+	Credentials          map[string]any
+	Extra                map[string]any
 }
 
 // CreateAccountRequest 创建账号请求
 type CreateAccountRequest struct {
-	Name               string         `json:"name"`
-	Notes              *string        `json:"notes"`
-	Platform           string         `json:"platform"`
-	Type               string         `json:"type"`
-	Credentials        map[string]any `json:"credentials"`
-	Extra              map[string]any `json:"extra"`
-	ProxyID            *int64         `json:"proxy_id"`
-	Concurrency        int            `json:"concurrency"`
-	Priority           int            `json:"priority"`
-	GroupIDs           []int64        `json:"group_ids"`
-	ExpiresAt          *time.Time     `json:"expires_at"`
-	AutoPauseOnExpired *bool          `json:"auto_pause_on_expired"`
+	Name                 string         `json:"name"`
+	Notes                *string        `json:"notes"`
+	VendorMark           *string        `json:"vendor_mark"`
+	IPGroupMark          *string        `json:"ip_group_mark"`
+	FingerprintGroupMark *string        `json:"fingerprint_group_mark"`
+	Platform             string         `json:"platform"`
+	Type                 string         `json:"type"`
+	Credentials          map[string]any `json:"credentials"`
+	Extra                map[string]any `json:"extra"`
+	ProxyID              *int64         `json:"proxy_id"`
+	Concurrency          int            `json:"concurrency"`
+	Priority             int            `json:"priority"`
+	GroupIDs             []int64        `json:"group_ids"`
+	ExpiresAt            *time.Time     `json:"expires_at"`
+	AutoPauseOnExpired   *bool          `json:"auto_pause_on_expired"`
 }
 
 // UpdateAccountRequest 更新账号请求

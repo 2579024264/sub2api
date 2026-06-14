@@ -20,6 +20,9 @@ type Account struct {
 	ID                      int64
 	Name                    string
 	Notes                   *string
+	VendorMark              *string
+	IPGroupMark             *string
+	FingerprintGroupMark    *string
 	Platform                string
 	Type                    string
 	Credentials             map[string]any

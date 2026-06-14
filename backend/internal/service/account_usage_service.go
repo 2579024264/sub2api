@@ -640,6 +640,7 @@ func (s *AccountUsageService) probeOpenAICodexSnapshot(ctx context.Context, acco
 	if chatgptAccountID := account.GetChatGPTAccountID(); chatgptAccountID != "" {
 		req.Header.Set("chatgpt-account-id", chatgptAccountID)
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	proxyURL := ""
 	if account.ProxyID != nil && account.Proxy != nil {

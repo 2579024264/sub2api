@@ -821,6 +821,9 @@ export interface Account {
   id: number
   name: string
   notes?: string | null
+  vendor_mark?: string | null
+  ip_group_mark?: string | null
+  fingerprint_group_mark?: string | null
   platform: AccountPlatform
   type: AccountType
   // 后端响应里 credentials 已脱敏：access_token / refresh_token / id_token /
@@ -1024,6 +1027,9 @@ export interface OpenAIResponsesState {
 export interface CreateAccountRequest {
   name: string
   notes?: string | null
+  vendor_mark?: string | null
+  ip_group_mark?: string | null
+  fingerprint_group_mark?: string | null
   platform: AccountPlatform
   type: AccountType
   credentials: Record<string, unknown>
@@ -1042,6 +1048,9 @@ export interface CreateAccountRequest {
 export interface UpdateAccountRequest {
   name?: string
   notes?: string | null
+  vendor_mark?: string | null
+  ip_group_mark?: string | null
+  fingerprint_group_mark?: string | null
   type?: AccountType
   credentials?: Record<string, unknown>
   extra?: Record<string, unknown>

@@ -276,20 +276,23 @@ type UpdateGroupInput struct {
 }
 
 type CreateAccountInput struct {
-	Name               string
-	Notes              *string
-	Platform           string
-	Type               string
-	Credentials        map[string]any
-	Extra              map[string]any
-	ProxyID            *int64
-	Concurrency        int
-	Priority           int
-	RateMultiplier     *float64 // 账号计费倍率（>=0，允许 0）
-	LoadFactor         *int
-	GroupIDs           []int64
-	ExpiresAt          *int64
-	AutoPauseOnExpired *bool
+	Name                 string
+	Notes                *string
+	VendorMark           *string
+	IPGroupMark          *string
+	FingerprintGroupMark *string
+	Platform             string
+	Type                 string
+	Credentials          map[string]any
+	Extra                map[string]any
+	ProxyID              *int64
+	Concurrency          int
+	Priority             int
+	RateMultiplier       *float64 // 账号计费倍率（>=0，允许 0）
+	LoadFactor           *int
+	GroupIDs             []int64
+	ExpiresAt            *int64
+	AutoPauseOnExpired   *bool
 	// SkipDefaultGroupBind prevents auto-binding to platform default group when GroupIDs is empty.
 	SkipDefaultGroupBind bool
 	// SkipMixedChannelCheck skips the mixed channel risk check when binding groups.
@@ -300,6 +303,9 @@ type CreateAccountInput struct {
 type UpdateAccountInput struct {
 	Name                  string
 	Notes                 *string
+	VendorMark            *string
+	IPGroupMark           *string
+	FingerprintGroupMark  *string
 	Type                  string // Account type: oauth, setup-token, apikey
 	Credentials           map[string]any
 	Extra                 map[string]any
@@ -317,19 +323,22 @@ type UpdateAccountInput struct {
 
 // BulkUpdateAccountsInput describes the payload for bulk updating accounts.
 type BulkUpdateAccountsInput struct {
-	AccountIDs     []int64
-	Filters        *BulkUpdateAccountFilters
-	Name           string
-	ProxyID        *int64
-	Concurrency    *int
-	Priority       *int
-	RateMultiplier *float64 // 账号计费倍率（>=0，允许 0）
-	LoadFactor     *int
-	Status         string
-	Schedulable    *bool
-	GroupIDs       *[]int64
-	Credentials    map[string]any
-	Extra          map[string]any
+	AccountIDs           []int64
+	Filters              *BulkUpdateAccountFilters
+	Name                 string
+	VendorMark           *string
+	IPGroupMark          *string
+	FingerprintGroupMark *string
+	ProxyID              *int64
+	Concurrency          *int
+	Priority             *int
+	RateMultiplier       *float64 // 账号计费倍率（>=0，允许 0）
+	LoadFactor           *int
+	Status               string
+	Schedulable          *bool
+	GroupIDs             *[]int64
+	Credentials          map[string]any
+	Extra                map[string]any
 	// SkipMixedChannelCheck skips the mixed channel risk check when binding groups.
 	// This should only be set when the caller has explicitly confirmed the risk.
 	SkipMixedChannelCheck bool
@@ -2594,17 +2603,20 @@ func (s *adminServiceImpl) CreateAccount(ctx context.Context, input *CreateAccou
 	}
 
 	account := &Account{
-		Name:        input.Name,
-		Notes:       normalizeAccountNotes(input.Notes),
-		Platform:    input.Platform,
-		Type:        input.Type,
-		Credentials: input.Credentials,
-		Extra:       input.Extra,
-		ProxyID:     input.ProxyID,
-		Concurrency: input.Concurrency,
-		Priority:    input.Priority,
-		Status:      StatusActive,
-		Schedulable: true,
+		Name:                 input.Name,
+		Notes:                normalizeAccountNotes(input.Notes),
+		VendorMark:           normalizeAccountNotes(input.VendorMark),
+		IPGroupMark:          normalizeAccountNotes(input.IPGroupMark),
+		FingerprintGroupMark: normalizeAccountNotes(input.FingerprintGroupMark),
+		Platform:             input.Platform,
+		Type:                 input.Type,
+		Credentials:          input.Credentials,
+		Extra:                input.Extra,
+		ProxyID:              input.ProxyID,
+		Concurrency:          input.Concurrency,
+		Priority:             input.Priority,
+		Status:               StatusActive,
+		Schedulable:          true,
 	}
 	// 预计算固定时间重置的下次重置时间
 	if account.Extra != nil {
@@ -2689,6 +2701,15 @@ func (s *adminServiceImpl) UpdateAccount(ctx context.Context, id int64, input *U
 	}
 	if input.Notes != nil {
 		account.Notes = normalizeAccountNotes(input.Notes)
+	}
+	if input.VendorMark != nil {
+		account.VendorMark = normalizeAccountNotes(input.VendorMark)
+	}
+	if input.IPGroupMark != nil {
+		account.IPGroupMark = normalizeAccountNotes(input.IPGroupMark)
+	}
+	if input.FingerprintGroupMark != nil {
+		account.FingerprintGroupMark = normalizeAccountNotes(input.FingerprintGroupMark)
 	}
 	if len(input.Credentials) > 0 {
 		// 敏感子键采用"incoming 没提供就保留"的合并语义：前端响应已脱敏，
@@ -2880,6 +2901,15 @@ func (s *adminServiceImpl) BulkUpdateAccounts(ctx context.Context, input *BulkUp
 	}
 	if input.Name != "" {
 		repoUpdates.Name = &input.Name
+	}
+	if input.VendorMark != nil {
+		repoUpdates.VendorMark = normalizeAccountNotes(input.VendorMark)
+	}
+	if input.IPGroupMark != nil {
+		repoUpdates.IPGroupMark = normalizeAccountNotes(input.IPGroupMark)
+	}
+	if input.FingerprintGroupMark != nil {
+		repoUpdates.FingerprintGroupMark = normalizeAccountNotes(input.FingerprintGroupMark)
 	}
 	if input.ProxyID != nil {
 		repoUpdates.ProxyID = input.ProxyID

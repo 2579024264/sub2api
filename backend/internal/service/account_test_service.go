@@ -291,6 +291,7 @@ func (s *AccountTestService) testClaudeAccountConnection(c *gin.Context, account
 		req.Header.Set("anthropic-beta", claude.APIKeyBetaHeader)
 		req.Header.Set("x-api-key", authToken)
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	// Get proxy URL
 	proxyURL := ""
@@ -450,6 +451,7 @@ func (s *AccountTestService) testBedrockAccountConnection(c *gin.Context, ctx co
 			return s.sendErrorAndEnd(c, fmt.Sprintf("Failed to sign request: %s", err.Error()))
 		}
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	proxyURL := ""
 	if account.ProxyID != nil && account.Proxy != nil {
@@ -594,6 +596,7 @@ func (s *AccountTestService) testOpenAIAccountConnection(c *gin.Context, account
 			req.Header.Set("chatgpt-account-id", chatgptAccountID)
 		}
 	}
+	ApplyAccountRequestHeaders(req, account)
 
 	// Get proxy URL
 	proxyURL := ""
@@ -753,6 +756,7 @@ func (s *AccountTestService) testOpenAICompactConnection(c *gin.Context, account
 	probeSessionID := compactProbeSessionID(account.ID)
 	req.Header.Set("Session_ID", probeSessionID)
 	req.Header.Set("Conversation_ID", probeSessionID)
+	ApplyAccountRequestHeaders(req, account)
 
 	if isOAuth {
 		req.Host = "chatgpt.com"
@@ -1604,11 +1608,7 @@ func (s *AccountTestService) testOpenAIImageOAuth(c *gin.Context, ctx context.Co
 	req.Header.Set("Accept", "text/event-stream")
 	req.Header.Set("OpenAI-Beta", "responses=experimental")
 	req.Header.Set("originator", "opencode")
-	if customUA := strings.TrimSpace(account.GetOpenAIUserAgent()); customUA != "" {
-		req.Header.Set("User-Agent", customUA)
-	} else {
-		req.Header.Set("User-Agent", codexCLIUserAgent)
-	}
+	ApplyAccountRequestHeaders(req, account)
 	if chatgptAccountID := strings.TrimSpace(account.GetChatGPTAccountID()); chatgptAccountID != "" {
 		req.Header.Set("chatgpt-account-id", chatgptAccountID)
 	}

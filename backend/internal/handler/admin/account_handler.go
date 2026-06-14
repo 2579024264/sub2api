@@ -97,6 +97,9 @@ func NewAccountHandler(
 type CreateAccountRequest struct {
 	Name                    string         `json:"name" binding:"required"`
 	Notes                   *string        `json:"notes"`
+	VendorMark              *string        `json:"vendor_mark"`
+	IPGroupMark             *string        `json:"ip_group_mark"`
+	FingerprintGroupMark    *string        `json:"fingerprint_group_mark"`
 	Platform                string         `json:"platform" binding:"required"`
 	Type                    string         `json:"type" binding:"required,oneof=oauth setup-token apikey upstream bedrock service_account"`
 	Credentials             map[string]any `json:"credentials" binding:"required"`
@@ -117,6 +120,9 @@ type CreateAccountRequest struct {
 type UpdateAccountRequest struct {
 	Name                    string         `json:"name"`
 	Notes                   *string        `json:"notes"`
+	VendorMark              *string        `json:"vendor_mark"`
+	IPGroupMark             *string        `json:"ip_group_mark"`
+	FingerprintGroupMark    *string        `json:"fingerprint_group_mark"`
 	Type                    string         `json:"type" binding:"omitempty,oneof=oauth setup-token apikey upstream bedrock service_account"`
 	Credentials             map[string]any `json:"credentials"`
 	Extra                   map[string]any `json:"extra"`
@@ -137,6 +143,9 @@ type BulkUpdateAccountsRequest struct {
 	AccountIDs              []int64                   `json:"account_ids"`
 	Filters                 *BulkUpdateAccountFilters `json:"filters"`
 	Name                    string                    `json:"name"`
+	VendorMark              *string                   `json:"vendor_mark"`
+	IPGroupMark             *string                   `json:"ip_group_mark"`
+	FingerprintGroupMark    *string                   `json:"fingerprint_group_mark"`
 	ProxyID                 *int64                    `json:"proxy_id"`
 	Concurrency             *int                      `json:"concurrency"`
 	Priority                *int                      `json:"priority"`
@@ -536,6 +545,9 @@ func (h *AccountHandler) Create(c *gin.Context) {
 		account, execErr := h.adminService.CreateAccount(ctx, &service.CreateAccountInput{
 			Name:                  req.Name,
 			Notes:                 req.Notes,
+			VendorMark:            req.VendorMark,
+			IPGroupMark:           req.IPGroupMark,
+			FingerprintGroupMark:  req.FingerprintGroupMark,
 			Platform:              req.Platform,
 			Type:                  req.Type,
 			Credentials:           req.Credentials,
@@ -615,6 +627,9 @@ func (h *AccountHandler) Update(c *gin.Context) {
 	account, err := h.adminService.UpdateAccount(c.Request.Context(), accountID, &service.UpdateAccountInput{
 		Name:                  req.Name,
 		Notes:                 req.Notes,
+		VendorMark:            req.VendorMark,
+		IPGroupMark:           req.IPGroupMark,
+		FingerprintGroupMark:  req.FingerprintGroupMark,
 		Type:                  req.Type,
 		Credentials:           req.Credentials,
 		Extra:                 req.Extra,
@@ -1539,6 +1554,9 @@ func (h *AccountHandler) BulkUpdate(c *gin.Context) {
 	skipCheck := req.ConfirmMixedChannelRisk != nil && *req.ConfirmMixedChannelRisk
 
 	hasUpdates := req.Name != "" ||
+		req.VendorMark != nil ||
+		req.IPGroupMark != nil ||
+		req.FingerprintGroupMark != nil ||
 		req.ProxyID != nil ||
 		req.Concurrency != nil ||
 		req.Priority != nil ||
@@ -1559,6 +1577,9 @@ func (h *AccountHandler) BulkUpdate(c *gin.Context) {
 		AccountIDs:            req.AccountIDs,
 		Filters:               toServiceBulkUpdateAccountFilters(req.Filters),
 		Name:                  req.Name,
+		VendorMark:            req.VendorMark,
+		IPGroupMark:           req.IPGroupMark,
+		FingerprintGroupMark:  req.FingerprintGroupMark,
 		ProxyID:               req.ProxyID,
 		Concurrency:           req.Concurrency,
 		Priority:              req.Priority,

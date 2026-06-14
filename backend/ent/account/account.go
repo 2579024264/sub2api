@@ -25,6 +25,12 @@ const (
 	FieldName = "name"
 	// FieldNotes holds the string denoting the notes field in the database.
 	FieldNotes = "notes"
+	// FieldVendorMark holds the string denoting the vendor_mark field in the database.
+	FieldVendorMark = "vendor_mark"
+	// FieldIPGroupMark holds the string denoting the ip_group_mark field in the database.
+	FieldIPGroupMark = "ip_group_mark"
+	// FieldFingerprintGroupMark holds the string denoting the fingerprint_group_mark field in the database.
+	FieldFingerprintGroupMark = "fingerprint_group_mark"
 	// FieldPlatform holds the string denoting the platform field in the database.
 	FieldPlatform = "platform"
 	// FieldType holds the string denoting the type field in the database.
@@ -119,6 +125,9 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldName,
 	FieldNotes,
+	FieldVendorMark,
+	FieldIPGroupMark,
+	FieldFingerprintGroupMark,
 	FieldPlatform,
 	FieldType,
 	FieldCredentials,
@@ -234,6 +243,21 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByNotes orders the results by the notes field.
 func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotes, opts...).ToFunc()
+}
+
+// ByVendorMark orders the results by the vendor_mark field.
+func ByVendorMark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVendorMark, opts...).ToFunc()
+}
+
+// ByIPGroupMark orders the results by the ip_group_mark field.
+func ByIPGroupMark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIPGroupMark, opts...).ToFunc()
+}
+
+// ByFingerprintGroupMark orders the results by the fingerprint_group_mark field.
+func ByFingerprintGroupMark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFingerprintGroupMark, opts...).ToFunc()
 }
 
 // ByPlatform orders the results by the platform field.

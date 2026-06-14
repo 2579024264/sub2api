@@ -59,6 +59,21 @@ func (Account) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			SchemaType(map[string]string{dialect.Postgres: "text"}),
+		// vendor_mark: 厂商标记，仅作为账号数据记录使用，不参与自动路由。
+		field.String("vendor_mark").
+			Optional().
+			Nillable().
+			MaxLen(100),
+		// ip_group_mark: IP 分组标记，仅作为账号数据记录使用，不参与代理分配。
+		field.String("ip_group_mark").
+			Optional().
+			Nillable().
+			MaxLen(100),
+		// fingerprint_group_mark: 指纹分组标记，用于选择请求浏览器 UA。
+		field.String("fingerprint_group_mark").
+			Optional().
+			Nillable().
+			MaxLen(100),
 
 		// platform: 所属平台，如 "claude", "gemini", "openai" 等
 		field.String("platform").

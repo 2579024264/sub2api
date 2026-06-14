@@ -138,6 +138,9 @@ func (r *accountRepository) Create(ctx context.Context, account *service.Account
 	account.ID = created.ID
 	account.CreatedAt = created.CreatedAt
 	account.UpdatedAt = created.UpdatedAt
+	if err := r.updateAccountMarks(ctx, account.ID, account.VendorMark, account.IPGroupMark, account.FingerprintGroupMark); err != nil {
+		return err
+	}
 	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventAccountChanged, &account.ID, nil, buildSchedulerGroupPayload(account.GroupIDs)); err != nil {
 		logger.LegacyPrintf("repository.account", "[SchedulerOutbox] enqueue account create failed: account=%d err=%v", account.ID, err)
 	}
@@ -398,6 +401,9 @@ func (r *accountRepository) Update(ctx context.Context, account *service.Account
 	if err != nil {
 		return translatePersistenceError(err, service.ErrAccountNotFound, nil)
 	}
+	if err := r.updateAccountMarks(ctx, account.ID, account.VendorMark, account.IPGroupMark, account.FingerprintGroupMark); err != nil {
+		return err
+	}
 	account.UpdatedAt = updated.UpdatedAt
 	if err := enqueueSchedulerOutbox(ctx, r.sql, service.SchedulerOutboxEventAccountChanged, &account.ID, nil, buildSchedulerGroupPayload(account.GroupIDs)); err != nil {
 		logger.LegacyPrintf("repository.account", "[SchedulerOutbox] enqueue account update failed: account=%d err=%v", account.ID, err)
@@ -416,6 +422,24 @@ func (r *accountRepository) UpdateCredentials(ctx context.Context, id int64, cre
 		return translatePersistenceError(err, service.ErrAccountNotFound, nil)
 	}
 	r.syncSchedulerAccountSnapshot(ctx, id)
+	return nil
+}
+
+func (r *accountRepository) updateAccountMarks(ctx context.Context, id int64, vendorMark, ipGroupMark, fingerprintGroupMark *string) error {
+	if id <= 0 {
+		return service.ErrAccountNotFound
+	}
+	_, err := r.sql.ExecContext(ctx, `
+		UPDATE accounts
+		SET vendor_mark = NULLIF($2::text, ''),
+			ip_group_mark = NULLIF($3::text, ''),
+			fingerprint_group_mark = NULLIF($4::text, ''),
+			updated_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`, id, nullableTrimmedString(vendorMark), nullableTrimmedString(ipGroupMark), nullableTrimmedString(fingerprintGroupMark))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -1415,6 +1439,33 @@ func (r *accountRepository) BulkUpdate(ctx context.Context, ids []int64, updates
 		args = append(args, *updates.Name)
 		idx++
 	}
+	if updates.VendorMark != nil {
+		if v := strings.TrimSpace(*updates.VendorMark); v == "" {
+			setClauses = append(setClauses, "vendor_mark = NULL")
+		} else {
+			setClauses = append(setClauses, "vendor_mark = $"+itoa(idx))
+			args = append(args, v)
+			idx++
+		}
+	}
+	if updates.IPGroupMark != nil {
+		if v := strings.TrimSpace(*updates.IPGroupMark); v == "" {
+			setClauses = append(setClauses, "ip_group_mark = NULL")
+		} else {
+			setClauses = append(setClauses, "ip_group_mark = $"+itoa(idx))
+			args = append(args, v)
+			idx++
+		}
+	}
+	if updates.FingerprintGroupMark != nil {
+		if v := strings.TrimSpace(*updates.FingerprintGroupMark); v == "" {
+			setClauses = append(setClauses, "fingerprint_group_mark = NULL")
+		} else {
+			setClauses = append(setClauses, "fingerprint_group_mark = $"+itoa(idx))
+			args = append(args, v)
+			idx++
+		}
+	}
 	if updates.ProxyID != nil {
 		// 0 表示清除代理（前端发送 0 而不是 null 来表达清除意图）
 		if *updates.ProxyID == 0 {
@@ -1773,6 +1824,9 @@ func accountEntityToService(m *dbent.Account) *service.Account {
 		ID:                      m.ID,
 		Name:                    m.Name,
 		Notes:                   m.Notes,
+		VendorMark:              m.VendorMark,
+		IPGroupMark:             m.IPGroupMark,
+		FingerprintGroupMark:    m.FingerprintGroupMark,
 		Platform:                m.Platform,
 		Type:                    m.Type,
 		Credentials:             copyJSONMap(m.Credentials),
@@ -1807,6 +1861,13 @@ func normalizeJSONMap(in map[string]any) map[string]any {
 		return map[string]any{}
 	}
 	return in
+}
+
+func nullableTrimmedString(value *string) any {
+	if value == nil {
+		return nil
+	}
+	return strings.TrimSpace(*value)
 }
 
 func copyJSONMap(in map[string]any) map[string]any {
